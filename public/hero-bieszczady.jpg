@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/static/favicon.ico">
+
+    <meta name="description"
+          content="Free AI anime image upscaler - enhance your anime art, manga panels, and illustrations up to 16K resolution. No sign-up required, supports bulk upscaling with crystal-clear results.">
+    <meta name="og:title" content="Free AI Anime Image Upscaler | Enhance Anime Art to 16K | No Sign-Up"/>
+    <meta name="og:description" content="Upscale anime images, manga panels, and illustrations up to 4x with AI. Perfect results for anime art, character designs, and manga artwork."/>
+    <meta name="og:image"
+          content="http://image-upscaling.net/static/assets/images/logo.webp"/>
+
+    <meta name="keywords" content="anime upscaler, anime image enhancer, manga upscaler, AI anime art, anime resolution enhancer, waifu upscaler, anime character upscaler">
+
+    <title>Free AI Anime Image Upscaler | Enhance Anime Art to 16K | No Watermarks</title>
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Inter+Tight:100,200,300,400,500,600,700,800,900&display=swap">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css?v=4">
+    <link rel="stylesheet" href="/static/checkbox.css">
+
+</head>
+
+<body>
+
+<script>
+    const str_upload_btn = "upload";
+    const str_uploading_image = "uploading anime image... wait a few seconds!";
+    const str_image_too_large = "Anime image size too large!";
+
+    const refresh_rate = "5000";
+    const default_image_src = "/static/assets/images/logo.webp";
+    const upload_src = "/upscaling_upload";
+    const get_images_src = "/upscaling_get_status";
+    const get_pending_requests_src = "/upscaling_get_pending_requests";
+    // @formatter:off
+    const config = {"diffuser": {"args_help": "prompt (text), creativity (float 0-1)", "fx": false, "help": "better quality on photos, slow and expensive", "price_max": 8, "price_min": 3, "prompt": true, "scales": {"-1": {"help": "this will produce 4MPx images (about 2000x2000), I recommend input images no smaller than 0.25MP (500x500px)", "max_size_input": 16777216, "min_size_input": 250000, "price": 8}, "1": {"max_size_input": 3936256}, "2": {"max_size_input": 984064}, "3": {"max_size_input": 436921}, "4": {"max_size_input": 246016}}}, "general": {"args_help": "fx (face enhance, boolean)", "fx": true, "help": "a simple vgg net that supports higher resolution", "price_max": 3, "price_min": 1, "prompt": false, "scales": {"4": {"max_size_input": 16777216}}}, "plus": {"args_help": "fx (face enhance, boolean)", "fx": true, "help": "the original deep RRDB net of ESRGAN", "price_max": 3, "price_min": 1, "prompt": false, "scales": {"2": {"max_size_input": 8388608}, "4": {"max_size_input": 2097152}}}};
+    // @formatter:on
+    const image_view_url = "/image_view";
+    const get_account_info_src = "/get_account_info";
+</script>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">image-upscaling.net</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a id="nav-upscaling" class="nav-link" href="/upscaling">Image Upscaling</a>
+        </li>
+        <li class="nav-item">
+          <a id="nav-removebg" class="nav-link" href="/removebg">Background Remover</a>
+        </li>
+        <li class="nav-item">
+          <a id="nav-tts" class="nav-link" href="/tts">Text to Speech</a>
+        </li>
+        <li class="nav-item">
+          <a id="nav-ieditor" class="nav-link" href="/reImagine">re-Imagine</a>
+        </li>
+        <li class="nav-item">
+          <a id="nav-bulk-converter" class="nav-link" href="/image-converter.html">Image Converter</a>
+        </li>
+        <li class="nav-item">
+          <a id="nav-about" class="nav-link" href="/about">About</a>
+        </li>
+        <li class="nav-item">
+          <a id="nav-api" class="nav-link" href="/api.html">API</a>
+        </li>
+        <li class="nav-item">
+          <a id="nav-account" class="nav-link" href="/account">Account</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<script>
+    document.getElementById("nav-upscaling").classList.add("active");
+</script>
+
+<div class="container mt-5 mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6 text-center mb-4 mb-lg-0 order-lg-2">
+            <img id="imagePreview"
+                 src="/static/assets/images/logo.webp"
+                 alt="Anime Image Upscaling Preview - Before and After">
+        </div>
+        <div class="col-lg-6 text-center order-lg-1">
+            <h1 id="headline"><strong>AI Anime Image Upscaler</strong></h1>
+            <p class="lead mb-4">Transform your anime art, manga panels, and illustrations into stunning high-resolution masterpieces</p>
+
+            <div id="settings" style="display:none;">
+
+                <div class="mb-4">
+                    <label class="form-label">Select Best Model for Anime:</label>
+                    <select id="modelSelect" class="form-select custom-select" onchange="onModelChanged()">
+                        <option value="plus" selected>Plus (Recommended for Anime)</option>
+                        <option value="general">General (Best for Large Anime Art)</option>
+                    </select>
+                    <small class="text-muted">Plus and General models work best for anime artwork</small>
+                </div>
+
+                <div id="scaleSettings" class="mb-3">
+                    <label class="form-label">Upscale Your Anime Art</label>
+                    <div style="gap:3px;" class="d-flex justify-content-center flex-wrap">
+                        <button type="button" class="btn btn-outline-primary scale-btn" data-scale="1"
+                                onclick="updateScale(1)">1x
+                        </button>
+                        <button type="button" class="btn btn-primary scale-btn" data-scale="2"
+                                onclick="updateScale(2)">2x
+                        </button>
+                        <button type="button" class="btn btn-outline-primary scale-btn" data-scale="3"
+                                onclick="updateScale(3)">3x
+                        </button>
+                        <button type="button" class="btn btn-outline-primary scale-btn" data-scale="4"
+                                onclick="updateScale(4)">4x
+                        </button>
+                        <button type="button" class="btn btn-outline-primary scale-btn" data-scale="-1"
+                                onclick="updateScale(-1)">4MP
+                        </button>
+                        <button type="button" class="btn btn-outline-primary scale-btn" data-scale="-2"
+                                onclick="updateScale(-2)">8MP
+                        </button>
+                        <button type="button" class="btn btn-outline-primary scale-btn" data-scale="-3"
+                                onclick="updateScale(-3)">16MP
+                        </button>
+                    </div>
+                </div>
+
+                <div id="usefxsettings" class="mb-3" style="display: none;">
+                    <div class="form-check form-switch d-flex justify-content-center checkbox-wrapper">
+                        <input id="fx_ui" type="checkbox" class="switch" onchange="syncfx();">
+                        <label class="form-check-label" for="fx_ui">use Face Restoration</label>
+                    </div>
+                    <p class="text-center text-muted"><small>(Not recommended for anime - designed for human faces only)</small></p>
+                </div>
+
+                <div id="diffusersettings" class="mb-3">
+                    <textarea onchange="syncprompt();" class="form-control" placeholder="Recommended: Describe your anime image (e.g., 'anime girl with blue hair', 'manga panel')" id="prompt_ui" name="prompt" maxlength="600"></textarea>
+
+                    <label class="mb-0" for="creativity_ui">Creative enhancement for anime details</label><br>
+                    <input type="range" onchange="synccreativity();" id="creativity_ui" name="creativity" min="0" max="1" step="0.01" value="0" style="width: 200px;">
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center flex-wrap">
+                <a id="fileA" class="btn btn-custom btn-primary" onclick="selectfiles();">Select Anime Images</a>
+                <a id="uploadA" class="btn btn-custom btn-outline-primary"
+                   onclick="document.getElementById('submit').click();"><span id="uploadbtntext">Upscale</span> (<span
+                        id="uploadnum">0</span>)</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="display:none;">
+    <form id="uploadForm" onsubmit="submitForm(event)" enctype="multipart/form-data">
+        <input type="file" name="image" id="fileInput" accept="image/*" onchange="onFilesSelected(event)" multiple>
+        <input type="checkbox" id="fx" name="fx" value="">
+        <input type="number" id="scale" name="scale"  value="2">
+        <input id="model" name="model" value="plus">
+        <input id="prompt" name="prompt" value="">
+        <input id="creativity" name="creativity" value="">
+        <input type="submit" id="submit" value="Upload Anime Image" name="submit">
+    </form>
+</div>
+
+<div class="container">
+    <p style="display:none;" id="free_quota_exhausted_info">Daily free anime upscaling quota exhausted. Visit <a
+            href="/account" target="_blank">/account</a> to get more quota</p>
+</div>
+
+<section id="gallery" class="mb-3">
+    <div class="container" id="imagedata">
+        <div style="display:none;" class="mb-2" id="c3">
+            <h3>High Resolution Upscaled Anime Images:</h3>
+            <p>Your enhanced anime artwork is ready for download — Click on an image to open it!<br>
+                <!--
+                Note: Your anime images will be deleted from the server after you open them so make sure you save them!
+                -->
+
+            <div class="d-flex checkbox-wrapper" style="align-items:center;">
+                <label class="form-check-label">enable quick download without preview: </label>
+                <input id="quick_download_toggle" style="margin-left:10px;" type="checkbox" class="switch"
+                       onchange="reloadContent();">
+            </div>
+            </p>
+            <div class="gallery row" id="g3"></div>
+            <p><strong>Love your enhanced anime art? Share our anime upscaler with fellow artists and otaku! 🎌</strong></p>
+        </div>
+
+        <div style="display:none;" class="mb-2" id="c1">
+            <h3>Anime Images Currently Being Enhanced:</h3>
+            <p>
+                High-quality anime upscaling usually takes only a few seconds. Your anime artwork will be ready soon! Feel free to check
+                back shortly! <br>Join our <a
+                    href='https://discord.gg/utXujgAT8R'><strong>discord</strong></a> community or follow us on
+                <a href='https://x.com/image_upscaling'><strong>twitter</strong></a> for anime upscaling tips.
+            </p>
+            <div class="gallery row" id="g1"></div>
+        </div>
+
+        <div style="display:none;" class="mb-2" id="c2">
+            <h3>Anime Images Waiting for Enhancement:</h3>
+            <p>
+                Your anime images are in the queue for high-quality upscaling. Check back in about 5
+                minutes - you do not need to keep this tab open. There are currently <span id="pendingrequestsinfo"></span> anime images waiting for enhancement.
+            </p>
+            <div class="gallery row" id="g2"></div>
+        </div>
+    </div>
+</section>
+
+<div class="container mt-3">
+    <div id="donation_div" class="hidden">
+        <h3>Keep the anime upscaler free for everyone</h3>
+        <p>
+            This anime enhancement service runs on powerful AI servers — donations help keep them running for all anime enthusiasts.
+        </p>
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+            <input type="hidden" name="cmd" value="_donations">
+            <input type="hidden" name="business" value="imageupscaling.net@gmail.com">
+            <input type="hidden" name="item_name"
+                   value="Supporting the free anime image upscaler! Your contribution helps cover AI server costs.">
+            <input type="hidden" name="currency_code" value="EUR">
+            <input type="hidden" name="no_shipping" value="1">
+            <input type="hidden" name="custom" value="b3895c8466c9d958bd9b4ec73b10c78d">
+            <input TYPE="hidden" NAME="return"
+                   value="http://image-upscaling.net/payment_event?redirect=http://image-upscaling.net/upscaling">
+            <input TYPE="hidden" NAME="cancel_return"
+                   value="http://image-upscaling.net/upscaling">
+            <input TYPE="hidden" NAME="notify_url"
+                   value="https://image-upscaling.net/paypal-ipn">
+            <input style="width:200px;" type="image" name="submit"
+                   src="/static/assets/images/paypal-donate-button.png"
+                   alt="Donate to Anime Upscaler">
+            <img alt="" width="1" height="1" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif">
+        </form>
+        <div class="line-segment"></div>
+    </div>
+</div>
+
+<div class="container mt-3">
+    <h2>Transform Your Anime Art with AI Enhancement</h2>
+    <p>Upload your anime images, manga panels, character art, or illustrations to have them enhanced up to 4x resolution using specialized AI models! Perfect for anime wallpapers, character designs, manga artwork, and digital illustrations. Images are completely private and automatically deleted after processing.</p>
+
+    <h2>Best AI Models for Anime Upscaling</h2>
+
+    <div class="model-card mb-4" style="border: 2px solid #007bff; background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%);">
+        <h5>Plus Model - Perfect for Anime Art ⭐</h5>
+        <strong>Why Plus is Best for Anime:</strong>
+        <ul>
+            <li>Specifically optimized for anime art styles and illustrations</li>
+            <li>Preserves anime-specific details like line art and shading</li>
+            <li>Excellent for character designs and anime portraits</li>
+            <li>Maintains vibrant anime colors and artistic style</li>
+            <li>Supports transparent PNG anime stickers and characters</li>
+            <li>Fast processing - results in seconds</li>
+            <li>Supports up to 32MP for large anime posters</li>
+        </ul>
+        <strong>Perfect for:</strong> Anime character art, digital illustrations, anime wallpapers, manga covers
+    </div>
+
+    <div class="model-card mb-4">
+        <h5>General Model - Best for Large Anime Projects</h5>
+        <strong>Ideal for Large-Scale Anime Art:</strong>
+        <ul>
+            <li>Supports massive outputs up to 256MP (16K resolution)</li>
+            <li>Perfect for anime posters and large format prints</li>
+            <li>Great for manga page enhancement</li>
+            <li>Handles complex anime scenes with multiple characters</li>
+            <li>Supports transparent anime graphics</li>
+            <li>Lightning-fast processing</li>
+        </ul>
+        <strong>Perfect for:</strong> Large anime wallpapers, manga pages, anime posters, detailed scene artwork
+        <br><strong>Note:</strong> Face enhancement is disabled by default as it's designed for human faces, not anime characters
+    </div>
+
+    <div class="model-card mb-4" style="opacity: 0.7;">
+        <h5>Diffuser Model - Not Recommended for Anime</h5>
+        <strong>Why Diffuser isn't ideal for anime:</strong>
+        <ul>
+            <li>Designed for realistic photos, not anime art styles</li>
+            <li>May alter anime aesthetic and make characters look too realistic</li>
+            <li>Limited to 4MP resolution</li>
+            <li>No transparent image support (bad for anime characters)</li>
+            <li>Much slower processing</li>
+        </ul>
+        <strong>Stick with Plus or General for best anime results!</strong>
+    </div>
+
+    <h2 id="keyfeatures">Key Features for Anime Artists</h2>
+    <ul>
+        <li><strong>Anime-specialized AI models</strong> - Optimized specifically for anime art styles</li>
+        <li><strong>100% free anime upscaling</strong> - No paywall, no sign-up required</li>
+        <li><strong>Perfect for all anime content:</strong> Character art, manga panels, illustrations, wallpapers</li>
+        <li><strong>Android app available</strong>: <a href="https://play.google.com/store/apps/details?id=net.image_upscaling">Download from Play Store</a></li>
+        <li><strong>Anime-friendly formats:</strong> PNG (with transparency), JPG, WebP</li>
+        <li><strong>Massive resolution support:</strong> Up to 16K (16,384×16,384) for anime posters</li>
+        <li><strong>Bulk anime processing</strong> - Upload multiple anime images at once</li>
+        <li><strong>Preserves transparency</strong> - Perfect for anime character PNGs and stickers</li>
+        <li><strong>Lightning-fast processing</strong> - Most anime images ready in seconds</li>
+        <li><strong>Privacy focused</strong> - Your anime art is automatically deleted after download</li>
+    </ul>
+</div>
+
+<br>
+
+<section>
+    <div class="container">
+        <h2 id="howitworks">How to Upscale Your Anime Images</h2>
+        <p>Enhancing your anime artwork is incredibly simple — and completely free:</p>
+        <ol>
+            <li><strong>Upload Your Anime Images:</strong> Select anime character art, manga panels, or illustrations from your device. Supports images up to 16MP for maximum quality enhancement.</li>
+            <li><strong>Choose the Best Model:</strong> Select "Plus" for most anime art or "General" for large-scale projects. Both models are specifically optimized for anime content.</li>
+            <li><strong>AI Processing Magic:</strong> Our specialized anime AI models analyze your artwork and enhance every detail - from character features to background elements. Processing typically takes just seconds.</li>
+            <li><strong>Download Enhanced Anime Art:</strong> Your high-resolution anime images will appear in the gallery below, ready for download in pristine quality.</li>
+            <li><strong>Automatic Cleanup:</strong> Your anime images are automatically deleted after a few minutes to ensure your privacy and free up space.</li>
+        </ol>
+
+        <br>
+
+        <h2>Anime Upscaling Results - Before vs After:</h2>
+        <div class="row">
+            <div class="col-12 col-md-8 col-lg-6">
+                <img src="/static/assets/images/compare2.jpg"
+                     alt="Anime image upscaling comparison - low resolution vs AI enhanced 4K">
+            </div>
+        </div>
+
+        <p>Amazing transformation for anime artwork! Try upscaling your favorite anime images right now — it's completely free!</p>
+        <a class="btn btn-primary btn-custom mt-0 rounded-sm p-1" href="#"
+           onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">
+            Enhance Your Anime Art Now!
+        </a>
+
+        <br><br>
+
+        <h2>Why Choose AI for Anime Image Enhancement?</h2>
+
+        <h3>AI Anime Upscaling Advantages:</h3>
+        <ul>
+            <li><strong>Preserves Anime Art Style:</strong> Our AI models understand anime aesthetics and maintain the unique visual style of your artwork</li>
+            <li><strong>Enhanced Character Details:</strong> Sharpen facial features, hair details, and clothing textures while keeping the anime look authentic</li>
+            <li><strong>Perfect Line Art:</strong> Maintains crisp, clean lines that are essential in anime and manga artwork</li>
+            <li><strong>Color Accuracy:</strong> Preserves vibrant anime colors and gradients without oversaturation</li>
+            <li><strong>Transparency Support:</strong> Perfect for anime character PNGs and stickers with transparent backgrounds</li>
+        </ul>
+
+        <h3>Traditional Scaling Problems for Anime:</h3>
+        <ul>
+            <li><strong>Pixelated Characters:</strong> Standard scaling creates blocky, pixelated anime characters</li>
+            <li><strong>Blurred Line Art:</strong> Fine line work becomes muddy and undefined</li>
+            <li><strong>Color Banding:</strong> Smooth anime color gradients become stepped and unnatural</li>
+            <li><strong>Lost Details:</strong> Small details like hair strands and fabric textures disappear</li>
+        </ul>
+
+        <h2>Perfect for All Types of Anime Content</h2>
+        <ul>
+            <li><strong>Anime Character Art:</strong> Portraits, full-body characters, character sheets</li>
+            <li><strong>Manga Panels:</strong> Black and white or colored manga pages</li>
+            <li><strong>Digital Illustrations:</strong> Original anime-style artwork and fan art</li>
+            <li><strong>Anime Wallpapers:</strong> Desktop and mobile wallpapers featuring anime characters</li>
+            <li><strong>Game Art:</strong> Anime-style game characters and UI elements</li>
+            <li><strong>Anime Screenshots:</strong> Frames from anime series or movies</li>
+            <li><strong>Chibi and Kawaii Art:</strong> Cute anime characters and mascots</li>
+            <li><strong>Anime Logos and Graphics:</strong> Transparent PNGs for websites and projects</li>
+        </ul>
+
+        <div class="line-segment"></div>
+
+        <div>
+            <h2>Privacy & Copyright for Your Anime Art</h2>
+            <ul>
+                <li><strong>Complete Privacy:</strong> Your anime images are linked only to your session cookie - no personal data collected</li>
+                <li><strong>Temporary Storage:</strong> Anime images are automatically deleted a few minutes after processing</li>
+                <li><strong>Your Art, Your Rights:</strong> You retain full copyright ownership of your anime artwork - we gain no rights</li>
+                <li><strong>No Usage Rights:</strong> Your anime images are used only for upscaling - never for training or other purposes</li>
+                <li><strong>Secure EU Servers:</strong> All anime image processing happens on secure servers in Germany</li>
+                <li><strong>No Watermarks:</strong> Your enhanced anime art is delivered completely clean without any branding</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section style="background-color: #282735; color: white;" class="pt-3 pb-3 mt-5">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 16px;">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;">
+
+            <!-- Left: Brand + Social -->
+            <div style="font-size: 0.9rem;">
+                © 2024 image-upscaling.net<br>
+                marvineckhardt04092003@gmail.com<br>
+                <div style="display: flex; gap: 10px;">
+                    <a href="https://x.com/image_upscaling" target="_blank" rel="noopener noreferrer"
+                       style="text-decoration:none;border:0;width:36px;height:36px;padding:2px;margin:5px;color:#11CBE9;border-radius:50%;background-color:#0d2744;">
+                        <svg class="niftybutton-twitter" style="display:block;fill:currentColor" data-donate="true"
+                             data-tag="twi" data-name="Twitter" viewBox="0 0 512 512"
+                             preserveAspectRatio="xMidYMid meet"><title>Twitter social icon</title>
+                            <path d="M419.6 168.6c-11.7 5.2-24.2 8.7-37.4 10.2 13.4-8.1 23.8-20.8 28.6-36 -12.6 7.5-26.5 12.9-41.3 15.8 -11.9-12.6-28.8-20.6-47.5-20.6 -42 0-72.9 39.2-63.4 79.9 -54.1-2.7-102.1-28.6-134.2-68 -17 29.2-8.8 67.5 20.1 86.9 -10.7-0.3-20.7-3.3-29.5-8.1 -0.7 30.2 20.9 58.4 52.2 64.6 -9.2 2.5-19.2 3.1-29.4 1.1 8.3 25.9 32.3 44.7 60.8 45.2 -27.4 21.4-61.8 31-96.4 27 28.8 18.5 63 29.2 99.8 29.2 120.8 0 189.1-102.1 185-193.6C399.9 193.1 410.9 181.7 419.6 168.6z"></path>
+                        </svg>
+                    </a>
+                    <a href="https://discord.gg/utXujgAT8R" target="_blank" rel="noopener noreferrer"
+                       style="text-decoration:none;border:0;width:36px;height:36px;padding:2px;margin:5px;color:#11CBE9;border-radius:50%;background-color:#0d2744;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                             class="bi bi-discord" viewBox="-2 -2 20 20">
+                            <path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right: Legal Info -->
+            <div style="font-size: 0.9rem; color: #cccccc;">
+                <strong>Impressum</strong><br>
+                Marvin Eckhardt<br>
+                Hinter dem kleinen Dorfe 170<br>
+                38822 Aspenstedt<br>
+                Germany
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/upscaling.js?v=36"></script>
+<script src="/static/show_notification.js?v=2"></script>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1BQ6K7MGR3"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-1BQ6K7MGR3');
+</script>
+
+<script src="/static/conversion_tracker.js?v=5"></script>
+
+
+</body>
+</html>
