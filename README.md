@@ -1,9 +1,6 @@
 # Leśny Gościniec website
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
-
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/jakub-jozefczyks-projects/v0-lesny-gosciniec-website)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/OSuac5Y5q2k)
 
 ## Overview
 
@@ -20,7 +17,6 @@ Your project is live at:
 
 Continue building your app on:
 
-**[https://v0.app/chat/OSuac5Y5q2k](https://v0.app/chat/OSuac5Y5q2k)**
 
 ## How It Works
 
