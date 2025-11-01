@@ -3,39 +3,7 @@ import Link from "next/link"
 import { ArrowRight, Users, Maximize } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import AnimatedSection from "@/components/animated-section"
-
-const rooms = [
-  {
-    id: "double-balcony",
-    name: "Pokój Dwuosobowy z Balkonem",
-    description: "Przestronny pokój z widokiem na las, wyposażony w wygodne łóżko i prywatny balkon.",
-    image: "/placeholder.svg?height=400&width=600",
-    capacity: "2 osoby",
-    size: "25 m²",
-    price: "Od 280 zł/noc",
-    features: ["Balkon z widokiem", "Łazienka z prysznicem", "WiFi", "Parking"],
-  },
-  {
-    id: "family-room",
-    name: "Pokój Rodzinny",
-    description: "Idealny dla rodzin, z dodatkowym miejscem do spania i przestronną łazienką.",
-    image: "/placeholder.svg?height=400&width=600",
-    capacity: "4 osoby",
-    size: "35 m²",
-    price: "Od 420 zł/noc",
-    features: ["Łóżko piętrowe", "Duża łazienka", "Miejsce na bagaże", "Widok na góry"],
-  },
-  {
-    id: "single-room",
-    name: "Pokój Jednoosobowy",
-    description: "Przytulny pokój dla osób podróżujących solo, z wszystkimi niezbędnymi udogodnieniami.",
-    image: "/placeholder.svg?height=400&width=600",
-    capacity: "1 osoba",
-    size: "18 m²",
-    price: "Od 180 zł/noc",
-    features: ["Pojedyncze łóżko", "Biurko", "Szafa", "Cicha lokalizacja"],
-  },
-]
+import { featuredRooms } from "@/lib/data/rooms"
 
 export default function RoomsSection() {
   return (
@@ -56,7 +24,7 @@ export default function RoomsSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {rooms.map((room) => (
+          {featuredRooms.map((room) => (
             <div
               key={room.id}
               className="bg-white rounded-2xl overflow-hidden shadow-lg border border-warm-beige hover:shadow-xl transition-all duration-300 group"
@@ -64,7 +32,7 @@ export default function RoomsSection() {
               {/* Room Image */}
               <div className="relative h-64 overflow-hidden">
                 <Image
-                  src={room.image || "/placeholder.svg"}
+                  src={room.images[0] || "/placeholder.svg"}
                   alt={room.name}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -91,10 +59,10 @@ export default function RoomsSection() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 mb-6">
-                  {room.features.map((feature) => (
-                    <div key={feature} className="flex items-center gap-2 text-sm text-warm-gray">
+                  {room.features.slice(0, 4).map((feature) => (
+                    <div key={feature.text} className="flex items-center gap-2 text-sm text-warm-gray">
                       <div className="w-2 h-2 bg-mustard rounded-full"></div>
-                      <span>{feature}</span>
+                      <span>{feature.text}</span>
                     </div>
                   ))}
                 </div>

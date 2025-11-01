@@ -7,13 +7,13 @@ import Footer from "@/components/footer"
 import { ThemeProvider } from "@/components/theme-provider"
 
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ["latin-ext"],
   variable: "--font-sans",
   display: "swap",
 })
 
 const playfairDisplay = Playfair_Display({
-  subsets: ["latin"],
+  subsets: ["latin-ext"],
   variable: "--font-serif",
   display: "swap",
 })

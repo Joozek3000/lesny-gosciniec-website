@@ -1,7 +1,10 @@
 import Link from "next/link"
 import { Facebook, Instagram, Mail, MapPin, Phone, Mountain } from "lucide-react"
+import { NAV_LINKS, BOOKING_LINK } from "@/lib/data/navigation"
 
 export default function Footer() {
+  const quickLinks = [...NAV_LINKS, BOOKING_LINK]
+
   return (
     <footer className="bg-forest-green text-white">
       <div className="container py-12 md:py-16">
@@ -45,31 +48,13 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-lg mb-4">Szybkie Linki</h3>
             <ul className="space-y-2">
-              <li>
-                <Link href="/" className="text-white/80 hover:text-white transition-colors">
-                  Strona Główna
-                </Link>
-              </li>
-              <li>
-                <Link href="/rooms" className="text-white/80 hover:text-white transition-colors">
-                  Pokoje
-                </Link>
-              </li>
-              <li>
-                <Link href="/attractions" className="text-white/80 hover:text-white transition-colors">
-                  Atrakcje
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-white/80 hover:text-white transition-colors">
-                  Kontakt
-                </Link>
-              </li>
-              <li>
-                <Link href="/booking" className="text-white/80 hover:text-white transition-colors">
-                  Rezerwacja
-                </Link>
-              </li>
+              {quickLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-white/80 hover:text-white transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

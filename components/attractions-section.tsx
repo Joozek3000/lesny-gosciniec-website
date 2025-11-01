@@ -1,51 +1,7 @@
 import Image from "next/image"
-import { TreePine, Mountain, Camera, Bike, Coffee, Heart } from "lucide-react"
+import { TreePine } from "lucide-react"
 import AnimatedSection from "@/components/animated-section"
-
-const attractions = [
-  {
-    id: "hiking",
-    title: "Szlaki Turystyczne",
-    description: "Odkryj piękno Bieszczad na licznych szlakach turystycznych",
-    icon: TreePine,
-    image: "/placeholder.svg?height=300&width=400",
-  },
-  {
-    id: "mountains",
-    title: "Widoki Górskie",
-    description: "Podziwiaj zapierające dech w piersiach panoramy",
-    icon: Mountain,
-    image: "/placeholder.svg?height=300&width=400",
-  },
-  {
-    id: "photography",
-    title: "Fotografia",
-    description: "Uwiecznij piękno dzikiej przyrody Bieszczad",
-    icon: Camera,
-    image: "/placeholder.svg?height=300&width=400",
-  },
-  {
-    id: "cycling",
-    title: "Trasy Rowerowe",
-    description: "Eksploruj okolice na rowerze po malowniczych trasach",
-    icon: Bike,
-    image: "/placeholder.svg?height=300&width=400",
-  },
-  {
-    id: "fireplace",
-    title: "Wieczory przy Kominku",
-    description: "Relaksuj się przy ciepłym kominku po dniu na szlaku",
-    icon: Coffee,
-    image: "/placeholder.svg?height=300&width=400",
-  },
-  {
-    id: "nature",
-    title: "Dzika Przyroda",
-    description: "Obserwuj dzikie zwierzęta w ich naturalnym środowisku",
-    icon: Heart,
-    image: "/placeholder.svg?height=300&width=400",
-  },
-]
+import { featuredAttractions } from "@/lib/data/attractions"
 
 export default function AttractionsSection() {
   return (
@@ -67,7 +23,7 @@ export default function AttractionsSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {attractions.map((attraction) => (
+          {featuredAttractions.map((attraction) => (
             <div
               key={attraction.id}
               className="bg-warm-beige/30 rounded-2xl overflow-hidden border border-warm-beige hover:shadow-lg transition-all duration-300 group"

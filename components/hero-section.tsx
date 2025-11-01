@@ -10,7 +10,8 @@ export default function HeroSection() {
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
-    setIsLoaded(true)
+    const id = requestAnimationFrame(() => setIsLoaded(true))
+    return () => cancelAnimationFrame(id)
   }, [])
 
   return (

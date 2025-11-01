@@ -38,7 +38,7 @@ export default function ApartmentsPage() {
               <p className="text-muted-foreground mb-6">
                 Our most popular accommodation, the Forest View Apartment offers a perfect blend of rustic charm and
                 modern comfort. With two spacious bedrooms, a fully equipped kitchen, and a private balcony overlooking
-                the forest, it's ideal for families or small groups.
+                the forest, it is ideal for families or small groups.
               </p>
 
               <div className="space-y-3 mb-8">
@@ -106,7 +106,7 @@ export default function ApartmentsPage() {
               <h2 className="font-serif text-3xl md:text-4xl font-semibold text-primary mb-6">Mountain Vista Suite</h2>
               <p className="text-muted-foreground mb-6">
                 Our most spacious accommodation, the Mountain Vista Suite offers panoramic views of the Bieszczady
-                Mountains. With three bedrooms, a large living area with a fireplace, and a fully equipped kitchen, it's
+                Mountains. With three bedrooms, a large living area with a fireplace, and a fully equipped kitchen, it is
                 perfect for larger families or groups.
               </p>
 
@@ -156,7 +156,7 @@ export default function ApartmentsPage() {
               <h2 className="font-serif text-3xl md:text-4xl font-semibold text-primary mb-6">Cozy Studio</h2>
               <p className="text-muted-foreground mb-6">
                 Perfect for couples or solo travelers, our Cozy Studio offers a comfortable and intimate space with all
-                the amenities you need. Featuring a queen bed, kitchenette, and a small private terrace, it's ideal for
+                the amenities you need. Featuring a queen bed, kitchenette, and a small private terrace, it is ideal for
                 a romantic getaway.
               </p>
 

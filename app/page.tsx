@@ -69,7 +69,7 @@ export default function HomePage() {
 
             <div className="mt-12 text-center">
               <p className="text-warm-gray italic text-lg font-serif">
-                "W Leśnym Gościńcu każdy dzień zaczyna się uśmiechem i kończy wdzięcznością"
+                &ldquo;W Leśnym Gościńcu każdy dzień zaczyna się uśmiechem i kończy wdzięcznością&rdquo;
               </p>
             </div>
           </div>

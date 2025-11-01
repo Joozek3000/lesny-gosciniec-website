@@ -282,7 +282,7 @@ export default function ExperiencePage() {
                     <h3 className="font-medium text-lg mb-2">Wildlife Watching</h3>
                     <p className="text-muted-foreground">
                       Autumn is the perfect time to spot wildlife as animals prepare for winter. Look for deer, wild
-                      boar, and if you're lucky, bison.
+                      boar, and if you are lucky, bison.
                     </p>
                   </div>
                 </div>
